@@ -135,7 +135,7 @@ private struct SmallAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 9)
+                CornerStatusDot(snapshot: snapshot, inset: 14)
             }
         }
     }
@@ -166,7 +166,7 @@ private struct MediumAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .center)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 11)
+                CornerStatusDot(snapshot: snapshot, inset: 16)
             }
         }
     }
@@ -197,7 +197,7 @@ private struct WideAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .center)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 13)
+                CornerStatusDot(snapshot: snapshot, inset: 20)
             }
         }
     }
@@ -255,7 +255,7 @@ private struct SmallSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 9)
+                CornerStatusDot(snapshot: snapshot, inset: 13)
             }
         }
     }
@@ -300,7 +300,7 @@ private struct MediumSpotifyWidget: View {
                 .padding(padding)
                 .background(.black.opacity(0.30))
 
-                CornerStatusDot(snapshot: snapshot, inset: 10)
+                CornerStatusDot(snapshot: snapshot, inset: 15)
             }
         }
     }
@@ -353,7 +353,7 @@ private struct LargeSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 10)
+                CornerStatusDot(snapshot: snapshot, inset: 16)
             }
         }
     }
@@ -413,7 +413,7 @@ private struct ExtraLargeSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 12)
+                CornerStatusDot(snapshot: snapshot, inset: 18)
             }
         }
     }

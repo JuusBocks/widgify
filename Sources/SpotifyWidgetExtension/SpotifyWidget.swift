@@ -941,8 +941,7 @@ private struct PlaybackControlStrip: View {
         ZStack {
             HStack(spacing: 18) {
                 ControlButton(systemName: "backward.fill", command: .previous)
-                ControlButton(systemName: snapshot.isPlaying ? "pause.circle.fill" : "play.circle.fill", command: snapshot.isPlaying ? .pause : .play)
-                    .font(.title2)
+                PrimaryPlaybackButton(isPlaying: snapshot.isPlaying)
                 ControlButton(systemName: "forward.fill", command: .next)
             }
             .frame(maxWidth: .infinity, alignment: .center)
@@ -955,6 +954,26 @@ private struct PlaybackControlStrip: View {
         }
         .foregroundStyle(.white.opacity(0.94))
         .frame(maxWidth: .infinity, minHeight: 24, alignment: .center)
+    }
+}
+
+private struct PrimaryPlaybackButton: View {
+    let isPlaying: Bool
+
+    var body: some View {
+        Button(intent: SpotifyCommandIntent(command: isPlaying ? .pause : .play)) {
+            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                .fontWeight(.black)
+                .foregroundStyle(.black.opacity(0.88))
+                .offset(x: isPlaying ? 0 : 0.8)
+                .padding(5)
+                .background {
+                    Circle()
+                        .fill(.white.opacity(0.96))
+                        .shadow(color: .black.opacity(0.22), radius: 4, y: 2)
+                }
+        }
+        .buttonStyle(.plain)
     }
 }
 

@@ -263,7 +263,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac;
 				PRODUCT_NAME = Widgify;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -288,7 +288,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac;
 				PRODUCT_NAME = Widgify;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -314,7 +314,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify.SpotifyWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac.SpotifyWidgetExtension;
 				PRODUCT_NAME = SpotifyWidgetExtension;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -340,7 +340,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify.SpotifyWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac.SpotifyWidgetExtension;
 				PRODUCT_NAME = SpotifyWidgetExtension;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;

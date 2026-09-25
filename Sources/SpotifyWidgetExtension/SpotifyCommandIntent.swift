@@ -19,7 +19,7 @@ enum SpotifyCommand: String, AppEnum {
         .playPause: "Play or Pause",
         .next: "Next",
         .shuffle: "Shuffle",
-        .openSpotify: "Open Player"
+        .openSpotify: "Open Spotify"
     ]
 }
 

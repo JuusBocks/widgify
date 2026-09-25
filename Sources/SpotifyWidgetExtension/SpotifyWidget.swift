@@ -135,7 +135,6 @@ private struct SmallAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 14)
             }
         }
     }
@@ -166,7 +165,6 @@ private struct MediumAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .center)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 16)
             }
         }
     }
@@ -197,7 +195,6 @@ private struct WideAmbientSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .center)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 20)
             }
         }
     }
@@ -255,7 +252,6 @@ private struct SmallSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 13)
             }
         }
     }
@@ -300,7 +296,6 @@ private struct MediumSpotifyWidget: View {
                 .padding(padding)
                 .background(.black.opacity(0.30))
 
-                CornerStatusDot(snapshot: snapshot, inset: 15)
             }
         }
     }
@@ -353,7 +348,6 @@ private struct LargeSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 16)
             }
         }
     }
@@ -413,24 +407,8 @@ private struct ExtraLargeSpotifyWidget: View {
                 .frame(width: contentWidth, height: contentHeight, alignment: .topLeading)
                 .padding(padding)
 
-                CornerStatusDot(snapshot: snapshot, inset: 18)
             }
         }
-    }
-}
-
-private struct CornerStatusDot: View {
-    let snapshot: SpotifySnapshot
-    var inset: CGFloat
-
-    var body: some View {
-        Circle()
-            .fill(snapshot.isPlaying ? .green : .secondary)
-            .frame(width: 7, height: 7)
-            .shadow(color: .black.opacity(0.42), radius: 3, y: 1)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-            .padding(.top, inset)
-            .padding(.trailing, inset)
     }
 }
 

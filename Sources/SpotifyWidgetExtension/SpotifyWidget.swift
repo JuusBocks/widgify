@@ -372,16 +372,19 @@ private struct ExtraLargeSpotifyWidget: View {
             let playerPanelWidth = min(max(248, contentWidth * 0.40), 304)
             let playerInnerWidth = max(160, playerPanelWidth - 28)
             let lyricsWidth = max(160, contentWidth - playerPanelWidth - gap)
-            let artSize = min(max(108, contentHeight * 0.42), 146)
+            let artSize = min(max(104, contentHeight * 0.38), 142)
 
             ZStack(alignment: .topLeading) {
                 FullArtworkBackground(snapshot: snapshot)
 
                 HStack(alignment: .top, spacing: gap) {
-                    VStack(alignment: .leading, spacing: 10) {
+                    VStack(alignment: .leading, spacing: 0) {
                         ArtworkView(snapshot: snapshot, cornerRadius: 14)
                             .frame(width: artSize, height: artSize)
                             .shadow(color: .black.opacity(0.34), radius: 12, y: 6)
+                            .frame(maxWidth: .infinity, alignment: .center)
+
+                        Spacer(minLength: 10)
 
                         TrackSummary(
                             snapshot: snapshot,
@@ -391,12 +394,14 @@ private struct ExtraLargeSpotifyWidget: View {
                         )
                         .layoutPriority(1)
 
+                        Spacer(minLength: 10)
+
                         ProgressRow(snapshot: snapshot)
+
+                        Spacer(minLength: 8)
 
                         PlaybackControlStrip(snapshot: snapshot)
                             .font(.callout)
-
-                        Spacer(minLength: 0)
                     }
                     .frame(width: playerInnerWidth, height: contentHeight - 28, alignment: .topLeading)
                     .padding(14)
@@ -957,17 +962,22 @@ private struct PlaybackControlStrip: View {
     let snapshot: SpotifySnapshot
 
     var body: some View {
-        HStack(spacing: 18) {
-            ControlButton(systemName: "backward.fill", command: .previous)
-            ControlButton(systemName: snapshot.isPlaying ? "pause.circle.fill" : "play.circle.fill", command: snapshot.isPlaying ? .pause : .play)
-                .font(.title2)
-            ControlButton(systemName: "forward.fill", command: .next)
-            Spacer(minLength: 8)
+        ZStack {
+            HStack(spacing: 18) {
+                ControlButton(systemName: "backward.fill", command: .previous)
+                ControlButton(systemName: snapshot.isPlaying ? "pause.circle.fill" : "play.circle.fill", command: snapshot.isPlaying ? .pause : .play)
+                    .font(.title2)
+                ControlButton(systemName: "forward.fill", command: .next)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
 
-            ControlButton(systemName: "music.note.list", command: .openSpotify)
+            HStack {
+                Spacer(minLength: 0)
+                ControlButton(systemName: "music.note.list", command: .openSpotify)
+            }
         }
         .foregroundStyle(.white.opacity(0.94))
-        .frame(maxWidth: .infinity, minHeight: 24, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 24, alignment: .center)
     }
 }
 

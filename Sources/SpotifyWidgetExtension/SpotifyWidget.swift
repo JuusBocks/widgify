@@ -370,7 +370,7 @@ private struct ExtraLargeSpotifyWidget: View {
             let contentWidth = max(0, proxy.size.width - padding * 2)
             let contentHeight = max(0, proxy.size.height - padding * 2)
             let playerPanelWidth = min(max(248, contentWidth * 0.40), 304)
-            let playerInnerWidth = max(160, playerPanelWidth - 28)
+            let playerInnerWidth = max(176, playerPanelWidth - 12)
             let lyricsWidth = max(160, contentWidth - playerPanelWidth - gap)
             let artSize = min(max(104, contentHeight * 0.38), 142)
 
@@ -403,10 +403,8 @@ private struct ExtraLargeSpotifyWidget: View {
                         PlaybackControlStrip(snapshot: snapshot)
                             .font(.callout)
                     }
-                    .frame(width: playerInnerWidth, height: contentHeight - 28, alignment: .topLeading)
-                    .padding(14)
-                    .frame(width: playerPanelWidth, height: contentHeight, alignment: .topLeading)
-                    .background(LiquidGlassPanel(cornerRadius: 18))
+                    .frame(width: playerInnerWidth, height: contentHeight, alignment: .topLeading)
+                    .frame(width: playerPanelWidth, height: contentHeight, alignment: .center)
 
                     LyricsPanel(snapshot: snapshot, lyrics: lyrics, visibleLineLimit: 8, currentLineLimit: 3, prominentCurrentLine: true, showsPlainLyricsPaging: true, centersFocusedLyrics: true)
                         .frame(width: lyricsWidth, height: contentHeight, alignment: .topLeading)

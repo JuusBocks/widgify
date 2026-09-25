@@ -959,6 +959,8 @@ private struct PlaybackControlStrip: View {
 }
 
 private struct ControlButton: View {
+    @Environment(\.widgetRenderingMode) private var renderingMode
+
     let systemName: String
     let command: SpotifyCommand
     var isActive = false
@@ -968,9 +970,18 @@ private struct ControlButton: View {
         Button(intent: SpotifyCommandIntent(command: command)) {
             Image(systemName: systemName)
                 .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.white.opacity(isActive ? 0.98 : inactiveOpacity))
+                .fontWeight(isActive ? .bold : .regular)
+                .foregroundStyle(foregroundStyle)
         }
         .buttonStyle(.plain)
+    }
+
+    private var foregroundStyle: Color {
+        guard isActive else {
+            return .white.opacity(inactiveOpacity)
+        }
+
+        return renderingMode == .fullColor ? .green : .white
     }
 }
 

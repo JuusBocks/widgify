@@ -311,21 +311,21 @@ private struct LargeSpotifyWidget: View {
             let gap: CGFloat = 6
             let contentWidth = max(0, proxy.size.width - padding * 2)
             let contentHeight = max(0, proxy.size.height - padding * 2)
-            let playerHeight = min(max(84, contentHeight * 0.30), 96)
+            let playerHeight = min(max(104, contentHeight * 0.36), 118)
             let lyricsWidth = max(0, contentWidth - 8)
             let lyricsHeight = max(118, contentHeight - playerHeight - gap)
-            let artSize = min(playerHeight, 94)
+            let artSize = min(playerHeight, 112)
 
             ZStack(alignment: .topLeading) {
                 FullArtworkBackground(snapshot: snapshot)
 
                 VStack(alignment: .leading, spacing: gap) {
-                    HStack(alignment: .center, spacing: 12) {
+                    HStack(alignment: .center, spacing: 14) {
                         ArtworkView(snapshot: snapshot, cornerRadius: 13)
                             .frame(width: artSize, height: artSize)
-                            .shadow(color: .black.opacity(0.34), radius: 10, y: 5)
+                            .shadow(color: .black.opacity(0.34), radius: 12, y: 6)
 
-                        VStack(alignment: .leading, spacing: 5) {
+                        VStack(alignment: .leading, spacing: 6) {
                             CompactTrackSummary(snapshot: snapshot)
                             .layoutPriority(1)
 
@@ -334,9 +334,9 @@ private struct LargeSpotifyWidget: View {
                             CompactProgressRow(snapshot: snapshot, showsTime: true)
 
                             PlaybackControlStrip(snapshot: snapshot)
-                                .font(.callout)
+                                .font(.title3)
                         }
-                        .frame(width: max(130, contentWidth - artSize - 12), height: playerHeight, alignment: .leading)
+                        .frame(width: max(130, contentWidth - artSize - 14), height: playerHeight, alignment: .leading)
                     }
                     .frame(width: contentWidth, height: playerHeight, alignment: .leading)
 
@@ -446,19 +446,19 @@ private struct CompactTrackSummary: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(snapshot.title)
-                .font(.subheadline.weight(.bold))
+                .font(.headline.weight(.bold))
                 .lineLimit(1)
                 .minimumScaleFactor(0.78)
                 .foregroundStyle(.white)
                 .shadow(color: .black.opacity(0.36), radius: 5, y: 2)
 
             Text(snapshot.artist)
-                .font(.caption.weight(.semibold))
+                .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.76))
                 .lineLimit(1)
 
             Text(snapshot.album.isEmpty ? "Spotify desktop" : snapshot.album)
-                .font(.caption2)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.white.opacity(0.52))
                 .lineLimit(1)
         }

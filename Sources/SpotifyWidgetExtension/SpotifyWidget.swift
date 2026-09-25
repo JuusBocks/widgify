@@ -968,12 +968,23 @@ private struct ControlButton: View {
 
     var body: some View {
         Button(intent: SpotifyCommandIntent(command: command)) {
-            Image(systemName: systemName)
-                .symbolRenderingMode(isActive ? .monochrome : .hierarchical)
-                .fontWeight(isActive ? .bold : .regular)
-                .foregroundStyle(foregroundStyle)
+            ZStack {
+                controlImage
+
+                if isActive {
+                    controlImage
+                        .offset(x: 0.45)
+                }
+            }
         }
         .buttonStyle(.plain)
+    }
+
+    private var controlImage: some View {
+        Image(systemName: systemName)
+            .symbolRenderingMode(isActive ? .monochrome : .hierarchical)
+            .fontWeight(isActive ? .black : .regular)
+            .foregroundStyle(foregroundStyle)
     }
 
     private var foregroundStyle: Color {

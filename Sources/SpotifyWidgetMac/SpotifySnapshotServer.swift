@@ -10,6 +10,7 @@ private struct ServedSpotifySnapshot: Encodable {
     var position: TimeInterval
     var duration: TimeInterval
     var isPlaying: Bool
+    var isShuffling: Bool
     var status: String
     var updatedAt: Date
 
@@ -21,6 +22,7 @@ private struct ServedSpotifySnapshot: Encodable {
         position: 0,
         duration: 0,
         isPlaying: false,
+        isShuffling: false,
         status: "Not playing",
         updatedAt: Date()
     )
@@ -32,6 +34,7 @@ private struct ServedSpotifySnapshot: Encodable {
             artworkURL != other.artworkURL ||
             duration != other.duration ||
             isPlaying != other.isPlaying ||
+            isShuffling != other.isShuffling ||
             status != other.status
     }
 }
@@ -194,6 +197,8 @@ final class SpotifySnapshotServer: @unchecked Sendable {
             script = Self.commandScript("playpause")
         case "next":
             script = Self.commandScript("next track")
+        case "shuffle":
+            script = Self.shuffleScript
         case "openSpotify":
             script = Self.openSpotifyScript
         default:
@@ -243,7 +248,7 @@ final class SpotifySnapshotServer: @unchecked Sendable {
             return updateSnapshot(snapshot)
         }
 
-        guard parts.first != "NO_TRACK", parts.count >= 7 else {
+        guard parts.first != "NO_TRACK", parts.count >= 8 else {
             var snapshot = ServedSpotifySnapshot.idle
             snapshot.updatedAt = Date()
             return updateSnapshot(snapshot)
@@ -258,6 +263,7 @@ final class SpotifySnapshotServer: @unchecked Sendable {
             position: TimeInterval(parts[5]) ?? 0,
             duration: (TimeInterval(parts[6]) ?? 0) / 1000,
             isPlaying: playState == "playing",
+            isShuffling: parts[7] == "true",
             status: playState == "playing" ? "Playing" : "Paused",
             updatedAt: Date()
         )
@@ -305,7 +311,8 @@ final class SpotifySnapshotServer: @unchecked Sendable {
                 set playState to player state as string
                 set playPosition to player position as string
                 set trackDuration to duration of theTrack as string
-                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration
+                set shuffleState to shuffling as string
+                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
             on error
                 return "NO_TRACK"
             end try
@@ -327,6 +334,14 @@ final class SpotifySnapshotServer: @unchecked Sendable {
 
     private static let openSpotifyScript = """
     tell application id "com.spotify.client" to activate
+    """
+
+    private static let shuffleScript = """
+    if application id "com.spotify.client" is running then
+        tell application id "com.spotify.client" to set shuffling to not shuffling
+    else
+        tell application id "com.spotify.client" to activate
+    end if
     """
 
 }

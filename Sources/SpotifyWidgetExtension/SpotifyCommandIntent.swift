@@ -7,6 +7,7 @@ enum SpotifyCommand: String, AppEnum {
     case pause
     case playPause
     case next
+    case shuffle
     case openSpotify
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Spotify Command")
@@ -17,6 +18,7 @@ enum SpotifyCommand: String, AppEnum {
         .pause: "Pause",
         .playPause: "Play or Pause",
         .next: "Next",
+        .shuffle: "Shuffle",
         .openSpotify: "Open Spotify"
     ]
 }

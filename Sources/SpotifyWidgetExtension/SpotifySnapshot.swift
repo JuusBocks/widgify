@@ -9,6 +9,7 @@ struct SpotifySnapshot: Equatable {
     var position: TimeInterval
     var duration: TimeInterval
     var isPlaying: Bool
+    var isShuffling: Bool
     var status: String
 
     static let idle = SpotifySnapshot(
@@ -20,6 +21,7 @@ struct SpotifySnapshot: Equatable {
         position: 0,
         duration: 0,
         isPlaying: false,
+        isShuffling: false,
         status: "Not playing"
     )
 }
@@ -112,7 +114,7 @@ enum SpotifyReader {
             return snapshot
         }
 
-        guard parts.first != "NO_TRACK", parts.count >= 7 else {
+        guard parts.first != "NO_TRACK", parts.count >= 8 else {
             return SpotifySnapshot.idle
         }
 
@@ -131,6 +133,7 @@ enum SpotifyReader {
             position: TimeInterval(parts[5]) ?? 0,
             duration: (TimeInterval(parts[6]) ?? 0) / 1000,
             isPlaying: parts[4] == "playing",
+            isShuffling: parts[7] == "true",
             status: parts[4] == "playing" ? "Playing" : "Paused"
         )
     }
@@ -143,6 +146,7 @@ enum SpotifyReader {
         var position: TimeInterval
         var duration: TimeInterval
         var isPlaying: Bool
+        var isShuffling: Bool?
         var status: String
     }
 
@@ -173,6 +177,7 @@ enum SpotifyReader {
             position: hosted.position,
             duration: hosted.duration,
             isPlaying: hosted.isPlaying,
+            isShuffling: hosted.isShuffling ?? false,
             status: hosted.status
         )
     }
@@ -194,6 +199,15 @@ enum SpotifyReader {
             verb = "playpause"
         case .next:
             verb = "next track"
+        case .shuffle:
+            _ = runAppleScript("""
+            if application id "com.spotify.client" is running then
+                tell application id "com.spotify.client" to set shuffling to not shuffling
+            else
+                tell application id "com.spotify.client" to activate
+            end if
+            """)
+            return
         case .openSpotify:
             _ = runAppleScript("""
             tell application id "com.spotify.client" to activate
@@ -268,7 +282,8 @@ enum SpotifyReader {
                 set playState to player state as string
                 set playPosition to player position as string
                 set trackDuration to duration of theTrack as string
-                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration
+                set shuffleState to shuffling as string
+                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
             on error
                 return "NO_TRACK"
             end try

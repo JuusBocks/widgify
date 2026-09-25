@@ -948,6 +948,7 @@ private struct PlaybackControlStrip: View {
             .frame(maxWidth: .infinity, alignment: .center)
 
             HStack {
+                ControlButton(systemName: "shuffle", command: .shuffle, isActive: snapshot.isShuffling, inactiveOpacity: 0.54)
                 Spacer(minLength: 0)
                 ControlButton(systemName: "music.note.list", command: .openSpotify)
             }
@@ -960,10 +961,14 @@ private struct PlaybackControlStrip: View {
 private struct ControlButton: View {
     let systemName: String
     let command: SpotifyCommand
+    var isActive = false
+    var inactiveOpacity = 0.94
 
     var body: some View {
         Button(intent: SpotifyCommandIntent(command: command)) {
             Image(systemName: systemName)
+                .symbolRenderingMode(.hierarchical)
+                .foregroundStyle(.white.opacity(isActive ? 0.98 : inactiveOpacity))
         }
         .buttonStyle(.plain)
     }

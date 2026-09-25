@@ -963,10 +963,11 @@ private struct PrimaryPlaybackButton: View {
     var body: some View {
         Button(intent: SpotifyCommandIntent(command: isPlaying ? .pause : .play)) {
             Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                .imageScale(.small)
                 .fontWeight(.black)
                 .foregroundStyle(.black.opacity(0.88))
-                .offset(x: isPlaying ? 0 : 0.8)
-                .padding(5)
+                .offset(x: isPlaying ? 0 : 0.35)
+                .padding(6)
                 .background {
                     Circle()
                         .fill(.white.opacity(0.96))

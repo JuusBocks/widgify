@@ -1,6 +1,7 @@
 import Foundation
 
 struct SpotifySnapshot: Equatable {
+    var player: String
     var title: String
     var artist: String
     var album: String
@@ -13,6 +14,7 @@ struct SpotifySnapshot: Equatable {
     var status: String
 
     static let idle = SpotifySnapshot(
+        player: "spotify",
         title: "Spotify",
         artist: "Start playback",
         album: "",
@@ -109,40 +111,46 @@ enum SpotifyReader {
 
         guard parts.first != "NOT_RUNNING" else {
             var snapshot = SpotifySnapshot.idle
-            snapshot.artist = "Open Spotify"
-            snapshot.status = "Spotify is closed"
+            snapshot.artist = "Open Music"
+            snapshot.status = "No player is open"
             return snapshot
         }
 
-        guard parts.first != "NO_TRACK", parts.count >= 8 else {
+        guard parts.first != "NO_TRACK", parts.count >= 9 else {
             return SpotifySnapshot.idle
         }
 
-        let artworkURL = URL(string: parts[3])
+        let artworkURL = URL(string: parts[4])
         var artworkData: Data?
         if loadArtwork, let artworkURL {
             artworkData = remoteData(from: artworkURL, timeout: 1.2)
         }
+        if artworkData == nil, loadArtwork, !parts[4].isEmpty {
+            artworkData = Data(base64Encoded: parts[4])
+        }
 
         return SpotifySnapshot(
-            title: parts[0].isEmpty ? "Unknown track" : parts[0],
-            artist: parts[1].isEmpty ? "Unknown artist" : parts[1],
-            album: parts[2],
+            player: parts[0],
+            title: parts[1].isEmpty ? "Unknown track" : parts[1],
+            artist: parts[2].isEmpty ? "Unknown artist" : parts[2],
+            album: parts[3],
             artworkURL: artworkURL,
             artworkData: artworkData,
-            position: TimeInterval(parts[5]) ?? 0,
-            duration: (TimeInterval(parts[6]) ?? 0) / 1000,
-            isPlaying: parts[4] == "playing",
-            isShuffling: parts[7] == "true",
-            status: parts[4] == "playing" ? "Playing" : "Paused"
+            position: TimeInterval(parts[6]) ?? 0,
+            duration: (TimeInterval(parts[7]) ?? 0) / 1000,
+            isPlaying: parts[5] == "playing",
+            isShuffling: parts[8] == "true",
+            status: parts[5] == "playing" ? "Playing" : "Paused"
         )
     }
 
     private struct HostedSnapshot: Decodable {
+        var player: String?
         var title: String
         var artist: String
         var album: String
         var artworkURL: String
+        var artworkData: String?
         var position: TimeInterval
         var duration: TimeInterval
         var isPlaying: Bool
@@ -167,8 +175,12 @@ enum SpotifyReader {
         if loadArtwork, let artworkURL {
             artworkData = remoteData(from: artworkURL, timeout: 1.2)
         }
+        if artworkData == nil, loadArtwork, let encodedArtwork = hosted.artworkData {
+            artworkData = Data(base64Encoded: encodedArtwork)
+        }
 
         return SpotifySnapshot(
+            player: hosted.player ?? "spotify",
             title: hosted.title,
             artist: hosted.artist,
             album: hosted.album,
@@ -187,41 +199,7 @@ enum SpotifyReader {
             return
         }
 
-        let verb: String
-        switch command {
-        case .previous:
-            verb = "previous track"
-        case .play:
-            verb = "play"
-        case .pause:
-            verb = "pause"
-        case .playPause:
-            verb = "playpause"
-        case .next:
-            verb = "next track"
-        case .shuffle:
-            _ = runAppleScript("""
-            if application id "com.spotify.client" is running then
-                tell application id "com.spotify.client" to set shuffling to not shuffling
-            else
-                tell application id "com.spotify.client" to activate
-            end if
-            """)
-            return
-        case .openSpotify:
-            _ = runAppleScript("""
-            tell application id "com.spotify.client" to activate
-            """)
-            return
-        }
-
-        _ = runAppleScript("""
-        if application id "com.spotify.client" is running then
-            tell application id "com.spotify.client" to \(verb)
-        else
-            tell application id "com.spotify.client" to activate
-        end if
-        """)
+        _ = runAppleScript(commandScript(for: command))
     }
 
     private static func sendToHostApp(_ command: SpotifyCommand) -> Bool {
@@ -270,27 +248,133 @@ enum SpotifyReader {
         return data
     }
 
+    private static func commandScript(for command: SpotifyCommand) -> String {
+        let spotifyCommand: String
+        let musicCommand: String
+
+        switch command {
+        case .previous:
+            spotifyCommand = "previous track"
+            musicCommand = "previous track"
+        case .play:
+            spotifyCommand = "play"
+            musicCommand = "play"
+        case .pause:
+            spotifyCommand = "pause"
+            musicCommand = "pause"
+        case .playPause:
+            spotifyCommand = "playpause"
+            musicCommand = "playpause"
+        case .next:
+            spotifyCommand = "next track"
+            musicCommand = "next track"
+        case .shuffle:
+            return """
+            if application id "com.spotify.client" is running then
+                tell application id "com.spotify.client"
+                    if player state is playing then
+                        set shuffling to not shuffling
+                        return
+                    end if
+                end tell
+            end if
+            if application "Music" is running then
+                tell application "Music" to set shuffle enabled to not shuffle enabled
+            else if application id "com.spotify.client" is running then
+                tell application id "com.spotify.client" to set shuffling to not shuffling
+            else
+                tell application "Music" to activate
+            end if
+            """
+        case .openSpotify:
+            return """
+            if application id "com.spotify.client" is running then
+                tell application id "com.spotify.client"
+                    if player state is playing then
+                        activate
+                        return
+                    end if
+                end tell
+            end if
+            if application "Music" is running then
+                tell application "Music" to activate
+            else
+                tell application id "com.spotify.client" to activate
+            end if
+            """
+        }
+
+        return """
+        if application id "com.spotify.client" is running then
+            tell application id "com.spotify.client"
+                if player state is playing then
+                    \(spotifyCommand)
+                    return
+                end if
+            end tell
+        end if
+        if application "Music" is running then
+            tell application "Music" to \(musicCommand)
+        else if application id "com.spotify.client" is running then
+            tell application id "com.spotify.client" to \(spotifyCommand)
+        else
+            tell application "Music" to activate
+        end if
+        """
+    }
+
     private static let trackScript = """
-    if application "Spotify" is running then
-        tell application "Spotify"
-            try
-                set theTrack to current track
-                set trackName to name of theTrack
-                set artistName to artist of theTrack
-                set albumName to album of theTrack
-                set artURL to artwork url of theTrack
-                set playState to player state as string
-                set playPosition to player position as string
-                set trackDuration to duration of theTrack as string
-                set shuffleState to shuffling as string
-                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
-            on error
-                return "NO_TRACK"
-            end try
-        end tell
-    else
+    on spotifySnapshot()
+        if application id "com.spotify.client" is running then
+            tell application id "com.spotify.client"
+                try
+                    set theTrack to current track
+                    set trackName to name of theTrack
+                    set artistName to artist of theTrack
+                    set albumName to album of theTrack
+                    set artURL to artwork url of theTrack
+                    set playState to player state as string
+                    set playPosition to player position as string
+                    set trackDuration to duration of theTrack as string
+                    set shuffleState to shuffling as string
+                    return "spotify" & linefeed & trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
+                on error
+                    return "NO_TRACK"
+                end try
+            end tell
+        end if
         return "NOT_RUNNING"
-    end if
+    end spotifySnapshot
+
+    on musicSnapshot()
+        if application "Music" is running then
+            tell application "Music"
+                try
+                    set theTrack to current track
+                    set trackName to name of theTrack
+                    set artistName to artist of theTrack
+                    set albumName to album of theTrack
+                    set playState to player state as string
+                    set playPosition to player position as string
+                    set trackDuration to ((duration of theTrack) * 1000) as string
+                    set shuffleState to shuffle enabled as string
+                    return "music" & linefeed & trackName & linefeed & artistName & linefeed & albumName & linefeed & "" & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
+                on error
+                    return "NO_TRACK"
+                end try
+            end tell
+        end if
+        return "NOT_RUNNING"
+    end musicSnapshot
+
+    set spotifyResult to spotifySnapshot()
+    set musicResult to musicSnapshot()
+    if spotifyResult contains (linefeed & "playing" & linefeed) then return spotifyResult
+    if musicResult contains (linefeed & "playing" & linefeed) then return musicResult
+    if spotifyResult is not "NOT_RUNNING" and spotifyResult is not "NO_TRACK" then return spotifyResult
+    if musicResult is not "NOT_RUNNING" and musicResult is not "NO_TRACK" then return musicResult
+    if spotifyResult is "NOT_RUNNING" and musicResult is "NOT_RUNNING" then return "NOT_RUNNING"
+    return "NO_TRACK"
     """
 
 }

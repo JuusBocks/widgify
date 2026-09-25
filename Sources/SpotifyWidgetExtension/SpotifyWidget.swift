@@ -232,7 +232,7 @@ private struct SmallSpotifyWidget: View {
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.82)
 
-                            Text(snapshot.album.isEmpty ? "Spotify desktop" : snapshot.album)
+                            Text(snapshot.albumDisplayName)
                                 .font(.caption2)
                                 .foregroundStyle(.white.opacity(0.52))
                                 .lineLimit(1)
@@ -432,7 +432,7 @@ private struct TrackSummary: View {
                 .foregroundStyle(.white.opacity(0.72))
                 .lineLimit(1)
 
-            Text(snapshot.album.isEmpty ? "Spotify desktop" : snapshot.album)
+            Text(snapshot.albumDisplayName)
                 .font(albumFont)
                 .foregroundStyle(.white.opacity(0.42))
                 .lineLimit(1)
@@ -457,7 +457,7 @@ private struct CompactTrackSummary: View {
                 .foregroundStyle(.white.opacity(0.76))
                 .lineLimit(1)
 
-            Text(snapshot.album.isEmpty ? "Spotify desktop" : snapshot.album)
+            Text(snapshot.albumDisplayName)
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.white.opacity(0.52))
                 .lineLimit(1)
@@ -992,6 +992,11 @@ private func formatTime(_ seconds: TimeInterval) -> String {
 }
 
 private extension SpotifySnapshot {
+    var albumDisplayName: String {
+        guard album.isEmpty else { return album }
+        return player == "music" ? "Music desktop" : "Spotify desktop"
+    }
+
     func roundedForAmbientDisplay(interval: TimeInterval) -> SpotifySnapshot {
         guard interval > 0, duration > 0 else { return self }
 

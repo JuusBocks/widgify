@@ -3,10 +3,12 @@ import Darwin
 import WidgetKit
 
 private struct ServedSpotifySnapshot: Encodable {
+    var player: String
     var title: String
     var artist: String
     var album: String
     var artworkURL: String
+    var artworkData: String
     var position: TimeInterval
     var duration: TimeInterval
     var isPlaying: Bool
@@ -15,10 +17,12 @@ private struct ServedSpotifySnapshot: Encodable {
     var updatedAt: Date
 
     static let idle = ServedSpotifySnapshot(
+        player: "spotify",
         title: "Spotify",
         artist: "Start playback",
         album: "",
         artworkURL: "",
+        artworkData: "",
         position: 0,
         duration: 0,
         isPlaying: false,
@@ -28,10 +32,12 @@ private struct ServedSpotifySnapshot: Encodable {
     )
 
     func requiresTimelineReload(comparedTo other: ServedSpotifySnapshot) -> Bool {
-        title != other.title ||
+        player != other.player ||
+            title != other.title ||
             artist != other.artist ||
             album != other.album ||
             artworkURL != other.artworkURL ||
+            artworkData != other.artworkData ||
             duration != other.duration ||
             isPlaying != other.isPlaying ||
             isShuffling != other.isShuffling ||
@@ -186,21 +192,22 @@ final class SpotifySnapshotServer: @unchecked Sendable {
         }
 
         let script: String
+        let player = cachedSnapshot().player
         switch command {
         case "previous":
-            script = Self.commandScript("previous track")
+            script = Self.commandScript(spotifyCommand: "previous track", musicCommand: "previous track", player: player)
         case "play":
-            script = Self.commandScript("play")
+            script = Self.commandScript(spotifyCommand: "play", musicCommand: "play", player: player)
         case "pause":
-            script = Self.commandScript("pause")
+            script = Self.commandScript(spotifyCommand: "pause", musicCommand: "pause", player: player)
         case "playPause":
-            script = Self.commandScript("playpause")
+            script = Self.commandScript(spotifyCommand: "playpause", musicCommand: "playpause", player: player)
         case "next":
-            script = Self.commandScript("next track")
+            script = Self.commandScript(spotifyCommand: "next track", musicCommand: "next track", player: player)
         case "shuffle":
-            script = Self.shuffleScript
+            script = Self.shuffleScript(player: player)
         case "openSpotify":
-            script = Self.openSpotifyScript
+            script = Self.openPlayerScript(player: player)
         default:
             sendStatus(to: client, code: 400, message: "Bad Request")
             return
@@ -242,28 +249,30 @@ final class SpotifySnapshotServer: @unchecked Sendable {
 
         guard parts.first != "NOT_RUNNING" else {
             var snapshot = ServedSpotifySnapshot.idle
-            snapshot.artist = "Open Spotify"
-            snapshot.status = "Spotify is closed"
+            snapshot.artist = "Open Music"
+            snapshot.status = "No player is open"
             snapshot.updatedAt = Date()
             return updateSnapshot(snapshot)
         }
 
-        guard parts.first != "NO_TRACK", parts.count >= 8 else {
+        guard parts.first != "NO_TRACK", parts.count >= 10 else {
             var snapshot = ServedSpotifySnapshot.idle
             snapshot.updatedAt = Date()
             return updateSnapshot(snapshot)
         }
 
-        let playState = parts[4]
+        let playState = parts[6]
         let snapshot = ServedSpotifySnapshot(
-            title: parts[0].isEmpty ? "Unknown track" : parts[0],
-            artist: parts[1].isEmpty ? "Unknown artist" : parts[1],
-            album: parts[2],
-            artworkURL: parts[3],
-            position: TimeInterval(parts[5]) ?? 0,
-            duration: (TimeInterval(parts[6]) ?? 0) / 1000,
+            player: parts[0],
+            title: parts[1].isEmpty ? "Unknown track" : parts[1],
+            artist: parts[2].isEmpty ? "Unknown artist" : parts[2],
+            album: parts[3],
+            artworkURL: parts[4],
+            artworkData: parts[5],
+            position: TimeInterval(parts[7]) ?? 0,
+            duration: (TimeInterval(parts[8]) ?? 0) / 1000,
             isPlaying: playState == "playing",
-            isShuffling: parts[7] == "true",
+            isShuffling: parts[9] == "true",
             status: playState == "playing" ? "Playing" : "Paused",
             updatedAt: Date()
         )
@@ -300,48 +309,129 @@ final class SpotifySnapshotServer: @unchecked Sendable {
     }
 
     private static let trackScript = """
-    if application "Spotify" is running then
-        tell application "Spotify"
-            try
-                set theTrack to current track
-                set trackName to name of theTrack
-                set artistName to artist of theTrack
-                set albumName to album of theTrack
-                set artURL to artwork url of theTrack
-                set playState to player state as string
-                set playPosition to player position as string
-                set trackDuration to duration of theTrack as string
-                set shuffleState to shuffling as string
-                return trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
-            on error
-                return "NO_TRACK"
-            end try
-        end tell
-    else
+    on spotifySnapshot()
+        if application id "com.spotify.client" is running then
+            tell application id "com.spotify.client"
+                try
+                    set theTrack to current track
+                    set trackName to name of theTrack
+                    set artistName to artist of theTrack
+                    set albumName to album of theTrack
+                    set artURL to artwork url of theTrack
+                    set playState to player state as string
+                    set playPosition to player position as string
+                    set trackDuration to duration of theTrack as string
+                    set shuffleState to shuffling as string
+                    return "spotify" & linefeed & trackName & linefeed & artistName & linefeed & albumName & linefeed & artURL & linefeed & "" & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
+                on error
+                    return "NO_TRACK"
+                end try
+            end tell
+        end if
         return "NOT_RUNNING"
-    end if
+    end spotifySnapshot
+
+    on musicArtwork(theTrack)
+        try
+            set artworkBlob to raw data of artwork 1 of theTrack
+            set artPath to (POSIX path of (path to temporary items)) & "widgify-music-artwork-" & (do shell script "/usr/bin/uuidgen") & ".bin"
+            set fileRef to open for access (POSIX file artPath) with write permission
+            set eof fileRef to 0
+            write artworkBlob to fileRef
+            close access fileRef
+            set encodedArtwork to do shell script "/usr/bin/base64 < " & quoted form of artPath & " | /usr/bin/tr -d '\\n'"
+            do shell script "/bin/rm -f " & quoted form of artPath
+            return encodedArtwork
+        on error
+            try
+                close access fileRef
+            end try
+            return ""
+        end try
+    end musicArtwork
+
+    on musicSnapshot()
+        if application "Music" is running then
+            tell application "Music"
+                try
+                    set theTrack to current track
+                    set trackName to name of theTrack
+                    set artistName to artist of theTrack
+                    set albumName to album of theTrack
+                    set playState to player state as string
+                    set playPosition to player position as string
+                    set trackDuration to ((duration of theTrack) * 1000) as string
+                    set shuffleState to shuffle enabled as string
+                    set encodedArtwork to my musicArtwork(theTrack)
+                    return "music" & linefeed & trackName & linefeed & artistName & linefeed & albumName & linefeed & "" & linefeed & encodedArtwork & linefeed & playState & linefeed & playPosition & linefeed & trackDuration & linefeed & shuffleState
+                on error
+                    return "NO_TRACK"
+                end try
+            end tell
+        end if
+        return "NOT_RUNNING"
+    end musicSnapshot
+
+    set spotifyResult to spotifySnapshot()
+    set musicResult to musicSnapshot()
+    if spotifyResult contains (linefeed & "playing" & linefeed) then return spotifyResult
+    if musicResult contains (linefeed & "playing" & linefeed) then return musicResult
+    if spotifyResult is not "NOT_RUNNING" and spotifyResult is not "NO_TRACK" then return spotifyResult
+    if musicResult is not "NOT_RUNNING" and musicResult is not "NO_TRACK" then return musicResult
+    if spotifyResult is "NOT_RUNNING" and musicResult is "NOT_RUNNING" then return "NOT_RUNNING"
+    return "NO_TRACK"
     """
 
-    private static func commandScript(_ command: String) -> String {
-        """
+    private static func commandScript(spotifyCommand: String, musicCommand: String, player: String) -> String {
+        if player == "music" {
+            return """
+            if application "Music" is running then
+                tell application "Music" to \(musicCommand)
+            else
+                tell application "Music" to activate
+            end if
+            """
+        }
+
+        return """
         if application id "com.spotify.client" is running then
-            tell application id "com.spotify.client" to \(command)
+            tell application id "com.spotify.client" to \(spotifyCommand)
         else
             tell application id "com.spotify.client" to activate
         end if
         """
     }
 
-    private static let openSpotifyScript = """
-    tell application id "com.spotify.client" to activate
-    """
+    private static func openPlayerScript(player: String) -> String {
+        if player == "music" {
+            return """
+            tell application "Music" to activate
+            """
+        }
 
-    private static let shuffleScript = """
-    if application id "com.spotify.client" is running then
-        tell application id "com.spotify.client" to set shuffling to not shuffling
-    else
+        return """
         tell application id "com.spotify.client" to activate
-    end if
-    """
+        """
+    }
+
+    private static func shuffleScript(player: String) -> String {
+        if player == "music" {
+            return """
+            if application "Music" is running then
+                tell application "Music" to set shuffle enabled to not shuffle enabled
+            else
+                tell application "Music" to activate
+            end if
+            """
+        }
+
+        return """
+        if application id "com.spotify.client" is running then
+            tell application id "com.spotify.client" to set shuffling to not shuffling
+        else
+            tell application id "com.spotify.client" to activate
+        end if
+        """
+    }
 
 }

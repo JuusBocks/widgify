@@ -35,8 +35,8 @@ Use the Xcode project when you want the widget to appear in macOS's desktop widg
 Default bundle identifiers:
 
 ```text
-com.leounib.SpotifyWidgetMac
-com.leounib.SpotifyWidgetMac.SpotifyWidgetExtension
+com.leounib.Widgify
+com.leounib.Widgify.SpotifyWidgetExtension
 ```
 
 If Xcode says a bundle identifier is unavailable, change `leounib` to something unique in both targets.

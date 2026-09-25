@@ -51,7 +51,7 @@ struct SpotifyWidget: Widget {
                 .containerBackground(.black, for: .widget)
         }
         .configurationDisplayName("Widgify")
-        .description("Shows the current Spotify track with artwork and playback controls.")
+        .description("Shows the current track with artwork and playback controls.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
         .contentMarginsDisabled()
         .containerBackgroundRemovable(false)

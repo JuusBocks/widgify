@@ -252,7 +252,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/App.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -263,7 +263,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify;
 				PRODUCT_NAME = Widgify;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 6.0;
@@ -277,7 +277,7 @@
 				CODE_SIGN_ENTITLEMENTS = Resources/App.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -288,7 +288,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify;
 				PRODUCT_NAME = Widgify;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -302,7 +302,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Resources/WidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -314,7 +314,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac.SpotifyWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify.SpotifyWidgetExtension;
 				PRODUCT_NAME = SpotifyWidgetExtension;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -328,7 +328,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Resources/WidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				ENABLE_DEBUG_DYLIB = NO;
 				ENABLE_APP_SANDBOX = YES;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -340,7 +340,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.SpotifyWidgetMac.SpotifyWidgetExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.leounib.Widgify.SpotifyWidgetExtension;
 				PRODUCT_NAME = SpotifyWidgetExtension;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;

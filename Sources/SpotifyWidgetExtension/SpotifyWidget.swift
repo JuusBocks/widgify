@@ -969,7 +969,7 @@ private struct ControlButton: View {
     var body: some View {
         Button(intent: SpotifyCommandIntent(command: command)) {
             Image(systemName: systemName)
-                .symbolRenderingMode(.hierarchical)
+                .symbolRenderingMode(isActive ? .monochrome : .hierarchical)
                 .fontWeight(isActive ? .bold : .regular)
                 .foregroundStyle(foregroundStyle)
         }

@@ -50,7 +50,7 @@ struct SpotifyWidget: Widget {
             SpotifyWidgetEntryView(entry: entry)
                 .containerBackground(.black, for: .widget)
         }
-        .configurationDisplayName("Spotify")
+        .configurationDisplayName("Widgify")
         .description("Shows the current Spotify track with artwork and playback controls.")
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
         .contentMarginsDisabled()
